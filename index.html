@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <style>
+        @font-face {
+            font-family: 'Helvetica-Neue';
+            src: url("fonts/helvetica-neue-regular.woff") format('woff');
+        }
+
+        body {
+            background: url('./background.jpg');
+            background-attachment: fixed;
+        }
+
+        .sendmessage {
+            border-radius: 13px;
+            border-bottom-left-radius: 0px;
+            border-bottom-right-radius: 0px;
+            width: auto;
+            margin: 0 auto;
+            left: 0px;
+            right: 0px;
+            padding: 10px;
+            position: fixed;
+            background-color: #8ec1f1;
+            bottom: 0;
+        }
+
+        input.sndmsg {
+            position: fixed;
+            border-radius: 10px;
+        }
+
+        input.msgfld {
+            line-height: 2em;
+            border-radius: 10px;
+            border-color: transparent;
+        }
+
+        .speech-wrapper {
+            padding: 30px 40px;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        }
+
+        .speech-wrapper .bubble {
+            background: #fff;
+            border-radius: 6px;
+            display: block;
+            height: auto;
+            box-shadow: 2px 6px 15px rgb(0, 0, 0);
+            margin: 0 0 25px;
+            position: relative;
+            width: 240px;
+        }
+
+        .speech-wrapper .bubble.alt {
+            margin-left: 60px;
+        }
+
+        .speech-wrapper .bubble .txt {
+            padding: 8px 55px 8px 14px;
+        }
+
+        .speech-wrapper .bubble .txt .message {
+            font-size: 14px;
+            color: #2b2b2b;
+        }
+
+        .speech-wrapper .bubble .txt .username.rajesh {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgb(14, 236, 132);
+            margin: 0 0 4px;
+        }
+
+        .speech-wrapper .bubble .txt .username.jinyang {
+            font-size: 12px;
+            font-weight: 600;
+            color: #DD9787;
+            margin: 0 0 4px;
+        }
+
+        .speech-wrapper .bubble .txt .username.gilfoyle {
+            font-size: 12px;
+            font-weight: 600;
+            color: #003f91;
+            margin: 0 0 4px;
+        }
+
+        .speech-wrapper .bubble .txt .username.richard {
+            font-size: 12px;
+            font-weight: 600;
+            color: #8de969;
+            margin: 0 0 4px;
+        }
+
+        .speech-wrapper .bubble .txt .username.bighead {
+            font-size: 12px;
+            font-weight: 600;
+            color: #33A1fd;
+            margin: 0 0 4px;
+        }
+
+
+        .speech-wrapper .bubble .txt .time {
+            font-size: 10px;
+            bottom: 8px;
+            right: 14px;
+            position: absolute;
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="speech-wrapper" id="speech-wrapper"></div>
+    <div id="showmessage"></div>
+    <form class="sendmessage" name="send_message">
+        <input class="msgfld" name="message" id="name" type="text" value="Message..." onfocus="this.value=''">
+        <input class="sndmsg" type="image" src="send.svg" alt="Submit" name="Send" height=33 width=40 >
+    </form>
+
+
+</body>
+<script>
+    window.onload = function () {
+        let width = window.innerWidth;
+        width = width / 10;
+        console.log(width);
+        document.getElementById("name").setAttribute('size', width);
+    }
+    window.onresize = function () {
+        let width = window.innerWidth;
+        width = width / 10;
+        console.log(width);
+        document.getElementById("name").setAttribute('size', width);
+    }
+    //var number = 0;
+    //setInterval(function () {
+    //    let test = document.createElement('div');
+    //    test.id = number;
+    //    test.textContent = "this is message test" + number++;
+    //    document.getElementById("showmessage").append(test);
+    //    window.scrollTo({ left: 0, top: document.body.scrollHeight, behaviour: "smooth" });
+    //}, 100000);
+    function calctime() {
+        var d = new Date();
+        if (d.getMinutes() >= 12 || d.getMinutes() <= 23) {
+            var output = d.getHours() + ":" + d.getMinutes() + "PM";
+            return output;
+        }
+        else {
+            var output = d.getHours() + ":" + d.getMinutes() + " AM";
+            return output;
+        }
+    }
+    let usernames = [
+        "rajesh",
+        "gilfoyle",
+        "richard",
+        "jinyang",
+        "bighead"
+    ]
+    function chatbubble(message, username, bubbledirection) {
+        let bubl = document.createElement('div');
+        if (bubbledirection == 0) {
+            bubl.className = "bubble";
+        }
+        else {
+            bubl.className = "bubble alt";
+        }
+        document.getElementById("speech-wrapper").append(bubl);
+        let txxt = document.createElement('div');
+        txxt.className = "txt";
+        bubl.append(txxt);
+        let usrnm = document.createElement('p');
+        let num = Math.floor(Math.random() * 5);
+        usrnm.className = "username" + " " + usernames[num];
+        usrnm.textContent = username;
+        txxt.append(usrnm);
+        let msg = document.createElement('p');
+        msg.className = "message";
+        msg.textContent = message;
+        txxt.append(msg);
+        let tim = document.createElement('span');
+        tim.textContent = calctime();
+        tim.className = "time";
+        txxt.append(tim);
+        window.scrollTo({ left: 0, top: document.body.scrollHeight, behaviour: "smooth" });
+    }
+    let url = 'ws://localhost:8080/ws';
+    let socket = new WebSocket(url);
+
+    let num = Math.floor(Math.random() * 5);
+    let username = prompt("Please enter your username!", usernames[num]);
+    let message_payload = {};
+    document.forms.send_message.onsubmit = function () {
+        message_payload.username = username;
+        message_payload.message = this.message.value;
+        //chatbubble(message_payload.message, username);
+        socket.send(JSON.stringify(message_payload));
+        return false;
+    } 
+    socket.onmessage = function(event) {
+        var output = decodeURI(event.data);
+        //console.log(JSON.parse(output));
+        let recieved = JSON.parse(output);
+        if(username == recieved.username) {
+            chatbubble(recieved.message, recieved.username, 1);
+        }
+        else {
+            chatbubble(recieved.message, recieved.username, 0);
+        }
+        console.log(recieved);
+    }
+</script>
+
+</html>
